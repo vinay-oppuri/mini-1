@@ -1,0 +1,28 @@
+[project]
+name = "agentic-cyber-defense"
+version = "0.1.0"
+description = "Policy-aware multi-agent cybersecurity defense system"
+requires-python = ">=3.10"
+
+dependencies = [
+    "langchain",
+    "langgraph",
+    "google-generativeai",   # Gemini SDK
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "python-dotenv",
+    "faiss-cpu",
+    "sentence-transformers",
+    "redis",
+    "networkx",
+    "streamlit"
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest",
+    "black",
+    "ruff",
+    "mypy"
+]
