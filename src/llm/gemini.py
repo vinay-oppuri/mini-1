@@ -1,13 +1,13 @@
-from google.genai import Client
+from google import genai
 import os
+import dotenv
+dotenv.load_dotenv()
 
-client = Client(
-    api_key="AIzaSyBl13uJxn48ciGe44rREtLrNu-s1bK9Kkk"
-)
+client = genai.Client(api_key=os.getenv("GOOGLE_KEY"))
 
 response = client.models.generate_content(
-    model="gemini-3-flash-preview",
-    contents="what is price of gold in rupees of 10 grams?"
+    model="gemini-2.5-flash",
+    contents="Who is the current president of the USA as of 2026?",
 )
 
 print(response.text)
