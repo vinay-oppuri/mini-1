@@ -1,13 +1,20 @@
 from google import genai
 import os
 import dotenv
+
 dotenv.load_dotenv()
 
-client = genai.Client(api_key=os.getenv("GOOGLE_KEY"))
+class GeminiClient:
+    def __init__(self, model="gemini-2.5-flash"):
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise RuntimeError("GEMINI_API_KEY not found.")
+        self.client = genai.Client(api_key=api_key)
+        self.model = model
 
-response = client.models.generate_content(
-    model="gemini-2.5-flash",
-    contents="Who is the current president of the USA as of 2026?",
-)
-
-print(response.text)
+    def generate(self, prompt: str) -> str:
+        response = self.client.models.generate_content(
+            model = self.model,
+            contents= prompt,
+        )
+        return response.text
