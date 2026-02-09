@@ -5,19 +5,8 @@ description = "Policy-aware multi-agent cybersecurity defense system"
 requires-python = ">=3.10"
 
 dependencies = [
-    "langchain",
-    "langgraph",
-    "google-generativeai",   # Gemini SDK
-    "fastapi",
-    "uvicorn",
-    "pydantic",
     "python-dotenv",
-    "faiss-cpu",
-    "sentence-transformers",
-    "redis",
-    "networkx",
-    "streamlit",
-    "google-genai>=1.61.0",
+    "google-genai>=0.1.0",
 ]
 
 [build-system]
