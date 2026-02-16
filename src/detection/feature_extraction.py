@@ -21,14 +21,14 @@ class FeatureExtractor:
 
             features.append(feature_vector)
         
-        return np.aryray(features)
+        return np.array(features)
     
 
-    def _encode_event_type(self, event_type: str) -> str:
+    def _encode_event_type(self, event_type: str) -> int:
         mapping = {
             "login" : 0,
             "logout" : 1,
-            "fole_access" : 2,
+            "file_access" : 2,
             "config_change" : 3
         }
 
