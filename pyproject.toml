@@ -2,13 +2,14 @@
 name = "agentic-cyber-defense"
 version = "0.1.0"
 description = "Policy-aware multi-agent cybersecurity defense system"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.14"
 
 dependencies = [
     "python-dotenv",
     "google-genai>=0.1.0",
     "numpy>=2.2.6",
     "scikit-learn>=1.7.2",
+    "tensorflow-cpu>=2.20.0; python_version < '3.14'",
 ]
 
 [build-system]
@@ -26,13 +27,7 @@ dev = [
 [tool.hatch.build.targets.wheel]
 packages = [
     "src/agents",
-    "src/api",
-    "src/core",
-    "src/detection",
-    "src/evaluations",
-    "src/graph",
+    "src/inference",
     "src/llm",
-    "src/rag",
-    "src/security",
-    "src/ui",
+    "src/log_parser",
 ]

@@ -1,98 +1,43 @@
 [
-  {
-    "timestamp": "2026-02-14T10:00:01Z",
-    "user": "alice",
-    "ip": "192.168.1.10",
-    "event_type": "login",
-    "resource": "auth_server",
-    "status": "success"
-  },
-  {
-    "timestamp": "2026-02-14T10:01:05Z",
-    "user": "alice",
-    "ip": "192.168.1.10",
-    "event_type": "file_access",
-    "resource": "finance_db",
-    "status": "success"
-  },
-  {
-    "timestamp": "2026-02-14T10:02:11Z",
-    "user": "bob",
-    "ip": "192.168.1.15",
-    "event_type": "login",
-    "resource": "auth_server",
-    "status": "success"
-  },
-  {
-    "timestamp": "2026-02-14T10:02:45Z",
-    "user": "bob",
-    "ip": "192.168.1.15",
-    "event_type": "logout",
-    "resource": "auth_server",
-    "status": "success"
-  },
-  {
-    "timestamp": "2026-02-14T10:03:10Z",
-    "user": "carol",
-    "ip": "192.168.1.22",
-    "event_type": "login",
-    "resource": "auth_server",
-    "status": "failed"
-  },
-  {
-    "timestamp": "2026-02-14T10:03:12Z",
-    "user": "carol",
-    "ip": "192.168.1.22",
-    "event_type": "login",
-    "resource": "auth_server",
-    "status": "failed"
-  },
-  {
-    "timestamp": "2026-02-14T10:03:14Z",
-    "user": "carol",
-    "ip": "192.168.1.22",
-    "event_type": "login",
-    "resource": "auth_server",
-    "status": "failed"
-  },
-  {
-    "timestamp": "2026-02-14T10:05:33Z",
-    "user": "admin",
-    "ip": "10.0.0.5",
-    "event_type": "config_change",
-    "resource": "cloud_firewall",
-    "status": "success"
-  },
-  {
-    "timestamp": "2026-02-14T10:07:40Z",
-    "user": "eve",
-    "ip": "203.0.113.99",
-    "event_type": "login",
-    "resource": "auth_server",
-    "status": "failed"
-  },
-  {
-    "timestamp": "2026-02-14T10:07:42Z",
-    "user": "eve",
-    "ip": "203.0.113.99",
-    "event_type": "login",
-    "resource": "auth_server",
-    "status": "failed"
-  },
-  {
-    "timestamp": "2026-02-14T10:07:45Z",
-    "user": "eve",
-    "ip": "203.0.113.99",
-    "event_type": "login",
-    "resource": "auth_server",
-    "status": "failed"
-  },
-  {
-    "timestamp": "2026-02-14T10:08:01Z",
-    "user": "eve",
-    "ip": "203.0.113.99",
-    "event_type": "login",
-    "resource": "auth_server",
-    "status": "success"
-  }
+  { "timestamp": "2026-02-14T09:00:01Z", "user": "alice", "ip": "192.168.1.10", "event_type": "login", "resource": "auth_server", "status": "success" },
+  { "timestamp": "2026-02-14T09:00:15Z", "user": "alice", "ip": "192.168.1.10", "event_type": "file_access", "resource": "finance_db", "status": "success" },
+  { "timestamp": "2026-02-14T09:05:10Z", "user": "alice", "ip": "192.168.1.10", "event_type": "logout", "resource": "auth_server", "status": "success" },
+
+  { "timestamp": "2026-02-14T09:10:01Z", "user": "bob", "ip": "192.168.1.15", "event_type": "login", "resource": "auth_server", "status": "success" },
+  { "timestamp": "2026-02-14T09:10:12Z", "user": "bob", "ip": "192.168.1.15", "event_type": "file_access", "resource": "hr_db", "status": "success" },
+  { "timestamp": "2026-02-14T09:15:22Z", "user": "bob", "ip": "192.168.1.15", "event_type": "logout", "resource": "auth_server", "status": "success" },
+
+  { "timestamp": "2026-02-14T09:20:01Z", "user": "carol", "ip": "192.168.1.22", "event_type": "login", "resource": "auth_server", "status": "failed" },
+  { "timestamp": "2026-02-14T09:20:03Z", "user": "carol", "ip": "192.168.1.22", "event_type": "login", "resource": "auth_server", "status": "failed" },
+  { "timestamp": "2026-02-14T09:20:05Z", "user": "carol", "ip": "192.168.1.22", "event_type": "login", "resource": "auth_server", "status": "failed" },
+  { "timestamp": "2026-02-14T09:20:10Z", "user": "carol", "ip": "192.168.1.22", "event_type": "login", "resource": "auth_server", "status": "success" },
+  { "timestamp": "2026-02-14T09:21:00Z", "user": "carol", "ip": "192.168.1.22", "event_type": "file_access", "resource": "finance_db", "status": "success" },
+
+  { "timestamp": "2026-02-14T09:30:33Z", "user": "admin", "ip": "10.0.0.5", "event_type": "config_change", "resource": "cloud_firewall", "status": "success" },
+  { "timestamp": "2026-02-14T09:31:02Z", "user": "admin", "ip": "10.0.0.5", "event_type": "file_access", "resource": "root_config", "status": "success" },
+
+  { "timestamp": "2026-02-14T10:00:01Z", "user": "dave", "ip": "192.168.1.35", "event_type": "login", "resource": "auth_server", "status": "success" },
+  { "timestamp": "2026-02-14T10:00:05Z", "user": "dave", "ip": "192.168.1.35", "event_type": "file_access", "resource": "dev_repo", "status": "success" },
+  { "timestamp": "2026-02-14T10:00:20Z", "user": "dave", "ip": "192.168.1.35", "event_type": "logout", "resource": "auth_server", "status": "success" },
+
+  { "timestamp": "2026-02-14T10:15:01Z", "user": "eve", "ip": "203.0.113.99", "event_type": "login", "resource": "auth_server", "status": "failed" },
+  { "timestamp": "2026-02-14T10:15:03Z", "user": "eve", "ip": "203.0.113.99", "event_type": "login", "resource": "auth_server", "status": "failed" },
+  { "timestamp": "2026-02-14T10:15:05Z", "user": "eve", "ip": "203.0.113.99", "event_type": "login", "resource": "auth_server", "status": "failed" },
+  { "timestamp": "2026-02-14T10:15:07Z", "user": "eve", "ip": "203.0.113.99", "event_type": "login", "resource": "auth_server", "status": "success" },
+  { "timestamp": "2026-02-14T10:16:10Z", "user": "eve", "ip": "203.0.113.99", "event_type": "file_access", "resource": "finance_db", "status": "success" },
+
+  { "timestamp": "2026-02-14T10:25:01Z", "user": "mallory", "ip": "198.51.100.77", "event_type": "login", "resource": "auth_server", "status": "failed" },
+  { "timestamp": "2026-02-14T10:25:03Z", "user": "mallory", "ip": "198.51.100.77", "event_type": "login", "resource": "auth_server", "status": "failed" },
+  { "timestamp": "2026-02-14T10:25:05Z", "user": "mallory", "ip": "198.51.100.77", "event_type": "login", "resource": "auth_server", "status": "failed" },
+  { "timestamp": "2026-02-14T10:25:07Z", "user": "mallory", "ip": "198.51.100.77", "event_type": "login", "resource": "auth_server", "status": "failed" },
+
+  { "timestamp": "2026-02-14T11:00:01Z", "user": "alice", "ip": "192.168.1.10", "event_type": "login", "resource": "auth_server", "status": "success" },
+  { "timestamp": "2026-02-14T11:00:05Z", "user": "alice", "ip": "192.168.1.10", "event_type": "file_access", "resource": "finance_db", "status": "success" },
+  { "timestamp": "2026-02-14T11:01:15Z", "user": "alice", "ip": "192.168.1.10", "event_type": "logout", "resource": "auth_server", "status": "success" },
+
+  { "timestamp": "2026-02-14T11:30:33Z", "user": "admin", "ip": "10.0.0.5", "event_type": "config_change", "resource": "cloud_firewall", "status": "success" },
+
+  { "timestamp": "2026-02-14T12:00:01Z", "user": "trent", "ip": "192.168.1.44", "event_type": "login", "resource": "auth_server", "status": "success" },
+  { "timestamp": "2026-02-14T12:00:15Z", "user": "trent", "ip": "192.168.1.44", "event_type": "file_access", "resource": "internal_docs", "status": "success" },
+  { "timestamp": "2026-02-14T12:05:10Z", "user": "trent", "ip": "192.168.1.44", "event_type": "logout", "resource": "auth_server", "status": "success" }
 ]
