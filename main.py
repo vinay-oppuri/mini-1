@@ -1,88 +1,101 @@
-from __future__ import annotations
-
-import argparse
 import json
-import sys
-from pathlib import Path
-from typing import Any, Dict, List
+from agents.coordinator import Coordinator
+
+# sample logs if file fails
+MOCK_LOGS = [
+    "ERROR auth-service: Login failed for user admin from IP 203.0.113.10",
+    "ERROR auth-service: Login failed for user admin from IP 203.0.113.10",
+    "ERROR auth-service: Login failed for user admin from IP 203.0.113.10",
+    "WARN api-gateway: Too many requests from IP 203.0.113.10 status 429",
+    "WARN api-gateway: Too many requests from IP 203.0.113.10 status 503",
+]
 
 
-PROJECT_ROOT = Path(__file__).resolve().parent
-SRC_ROOT = PROJECT_ROOT / "src"
-if str(SRC_ROOT) not in sys.path:
-    sys.path.insert(0, str(SRC_ROOT))
+# function to load logs from json file
+def load_logs(file_path):
 
-from agents.coordinator import Coordinator  # noqa: E402
+    try:
+        file = open(file_path, "r")
+        logs = json.load(file)
+        file.close()
+
+        return logs, "REAL DATA", ""
+
+    except Exception as error:
+        reason = f"Could not load real logs file: {error}"
+        print(reason)
+        print("Using mock logs instead.")
+        return MOCK_LOGS, "MOCK DATA", reason
 
 
-def load_logs(path: Path) -> List[Dict[str, Any] | str]:
-    with path.open("r", encoding="utf-8") as file:
-        payload = json.load(file)
-    if isinstance(payload, list):
-        return payload
-    if isinstance(payload, dict):
-        return [payload]
-    raise ValueError(f"Unsupported log file format in {path}.")
+# function to print results nicely
+def print_report(result, data_source, fallback_reason):
 
+    analysis = result["analysis"]
+    llm = result["llm_explanation"]
+    policy = result["policy"]
+    response = result["response"]
+    metrics = result["cloud_metrics"]
 
-def print_report(result: Dict[str, Any]) -> None:
-    analysis = result.get("analysis", {})
-    llm = result.get("llm_explanation", {})
-    policy = result.get("policy", {})
-    response = result.get("response", {})
-    metrics = result.get("cloud_metrics", {})
+    # show where output came from
+    print("\nDATA SOURCE:", data_source)
+    if data_source == "MOCK DATA" and fallback_reason != "":
+        print("Reason:", fallback_reason)
 
-    status = "ANOMALY DETECTED" if analysis.get("is_anomaly") else "NO CRITICAL ANOMALY"
-    service = metrics.get("service", "unknown")
-    score = float(analysis.get("anomaly_score", 0.0))
-
-    print()
-    print(status)
-    print()
-    print(f"Service: {service}")
-    print(f"Score: {score:.2f}")
-    print()
-    print("Gemini Analysis:")
-    print(f"Attack Type: {llm.get('attack_type', 'Unknown')}")
-    print(f"Reason: {llm.get('reason', 'N/A')}")
-    print()
-    print("Action:")
-    actions = response.get("actions", [])
-    if not actions:
-        print("- No action")
+    # anomaly or not
+    if analysis["is_anomaly"]:
+        print("\nANOMALY DETECTED\n")
     else:
-        for item in actions:
-            print(f"- {item}")
-    print()
-    print(f"Severity: {policy.get('severity', 'unknown')}")
+        print("\nNO CRITICAL ANOMALY\n")
+
+    print("Service:", metrics["service"])
+    print("Score:", analysis["anomaly_score"])
+
+    print("\nGemini Analysis")
+    print("Attack Type:", llm["attack_type"])
+    print("Reason:", llm["reason"])
+
+    print("\nAction")
+
+    actions = response["actions"]
+
+    if len(actions) == 0:
+        print("- No action needed")
+    else:
+        for action in actions:
+            print("-", action)
+
+    print("\nSeverity:", policy["severity"])
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="AI-Driven Multi-Agent Log Anomaly Detection")
-    parser.add_argument(
-        "--input",
-        type=str,
-        default="data/raw_logs/app/cloud_workload_logs.json",
-        help="Path to JSON logs file.",
-    )
-    return parser.parse_args()
+# main program
+def main():
 
-
-def main() -> None:
-    args = parse_args()
-    log_path = (PROJECT_ROOT / args.input).resolve() if not Path(args.input).is_absolute() else Path(args.input)
-
-    if not log_path.exists():
-        raise FileNotFoundError(
-            f"{log_path} not found. Generate sample logs with: uv run cloud_simulator/generate_logs.py"
-        )
-
-    logs = load_logs(log_path)
+    # create coordinator (multi-agent system)   
     coordinator = Coordinator()
-    result = coordinator.run(logs=logs, source="cloud-workload")
-    print_report(result)
+
+    # load logs
+    logs, data_source, fallback_reason = load_logs("data/raw_logs/app/cloud_workload_logs.json")
+
+    # run detection (if real-data processing fails, retry with mock data)
+    try:
+        result = coordinator.run(logs=logs, source="cloud-workload")
+
+    except Exception as error:
+        if data_source == "MOCK DATA":
+            raise
+
+        fallback_reason = f"Could not process real data output: {error}"
+        print(fallback_reason)
+        print("Retrying with mock logs...")
+
+        logs = MOCK_LOGS
+        data_source = "MOCK DATA"
+        result = coordinator.run(logs=logs, source="mock-fallback")
+
+    # show result
+    print_report(result, data_source, fallback_reason)
 
 
 if __name__ == "__main__":
     main()
-

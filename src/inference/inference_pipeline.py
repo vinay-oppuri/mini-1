@@ -30,31 +30,23 @@ class InferencePipeline:
     def __init__(self, model_dir: Optional[str] = None) -> None:
         project_root = Path(__file__).resolve().parents[2]
         default_model_dir = project_root / "models"
-        artifacts_dir = Path(model_dir) if model_dir else default_model_dir
+        artifact_dir = Path(model_dir) if model_dir else default_model_dir
 
-        self.vectorizer = joblib.load(artifacts_dir / "vectorizer.pkl")
-        self.svd = joblib.load(artifacts_dir / "svd.pkl")
-        self.scaler = joblib.load(artifacts_dir / "scaler.pkl")
-        self.model = load_model(self._resolve_model_path(artifacts_dir))
-        self.threshold = float(np.load(self._resolve_threshold_path(artifacts_dir)))
+        self.vectorizer = joblib.load(artifact_dir / "vectorizer.pkl")
+        self.svd = joblib.load(artifact_dir / "svd.pkl")
+        self.scaler = joblib.load(artifact_dir / "scaler.pkl")
+        self.model = load_model(self._resolve_model_path(artifact_dir))
+        self.threshold = float(np.load(self._resolve_threshold_path(artifact_dir)))
         self.window_size = int(self.model.input_shape[1])
 
     def score(self, logs: Sequence[str]) -> InferenceResult:
-        cleaned = [str(log).strip() for log in logs if str(log).strip()]
-        if not cleaned:
-            return InferenceResult(
-                anomaly_score=0.0,
-                is_anomaly=False,
-                threshold=self.threshold,
-                raw_max_error=0.0,
-                event_scores=[],
-                sequence_scores=[],
-                window_size=self.window_size,
-                padding_applied=False,
-            )
+        clean_logs = [str(line).strip() for line in logs if str(line).strip()]
+        if not clean_logs:
+            return self._empty_result()
 
-        features = self._preprocess(cleaned)
+        features = self._preprocess(clean_logs)
         sequences, padding_applied, original_count = self._build_sequences(features)
+
         reconstructed = self.model.predict(sequences, verbose=0)
         sequence_errors = np.mean(np.square(sequences - reconstructed), axis=(1, 2))
         event_errors = self._map_sequence_errors_to_events(
@@ -64,15 +56,11 @@ class InferencePipeline:
         )
 
         raw_max_error = float(np.max(event_errors) if len(event_errors) else 0.0)
-        normalized_event_scores = np.clip(event_errors / max(self.threshold, 1e-8), 0.0, 1.0)
+        threshold_floor = max(self.threshold, 1e-8)
+        normalized_event_scores = np.clip(event_errors / threshold_floor, 0.0, 1.0)
+        normalized_sequence_scores = np.clip(sequence_errors / threshold_floor, 0.0, 1.0)
         anomaly_score = float(np.max(normalized_event_scores) if len(normalized_event_scores) else 0.0)
         is_anomaly = raw_max_error > self.threshold
-
-        normalized_sequence_scores = np.clip(
-            sequence_errors / max(self.threshold, 1e-8),
-            0.0,
-            1.0,
-        )
 
         return InferenceResult(
             anomaly_score=anomaly_score,
@@ -85,9 +73,21 @@ class InferencePipeline:
             padding_applied=padding_applied,
         )
 
+    def _empty_result(self) -> InferenceResult:
+        return InferenceResult(
+            anomaly_score=0.0,
+            is_anomaly=False,
+            threshold=self.threshold,
+            raw_max_error=0.0,
+            event_scores=[],
+            sequence_scores=[],
+            window_size=self.window_size,
+            padding_applied=False,
+        )
+
     def _preprocess(self, logs: Sequence[str]) -> np.ndarray:
-        transformed = self.vectorizer.transform(logs)
-        reduced = self.svd.transform(transformed)
+        vectors = self.vectorizer.transform(logs)
+        reduced = self.svd.transform(vectors)
         scaled = self.scaler.transform(reduced)
         return np.asarray(scaled, dtype=np.float32)
 
@@ -97,16 +97,17 @@ class InferencePipeline:
             return np.empty((0, self.window_size, 0), dtype=np.float32), False, 0
 
         if original_count < self.window_size:
-            pad_count = self.window_size - original_count
-            padding = np.repeat(features[-1:, :], pad_count, axis=0)
+            missing = self.window_size - original_count
+            padding = np.repeat(features[-1:, :], missing, axis=0)
             padded = np.vstack([features, padding])
             sequence = padded[np.newaxis, :, :]
             return np.asarray(sequence, dtype=np.float32), True, original_count
 
-        sequences = np.array(
-            [features[i : i + self.window_size] for i in range(original_count - self.window_size + 1)],
-            dtype=np.float32,
-        )
+        sliding_windows = [
+            features[start : start + self.window_size]
+            for start in range(original_count - self.window_size + 1)
+        ]
+        sequences = np.asarray(sliding_windows, dtype=np.float32)
         return sequences, False, original_count
 
     def _map_sequence_errors_to_events(
@@ -122,18 +123,19 @@ class InferencePipeline:
             return np.full(event_count, float(sequence_errors[0]), dtype=np.float32)
 
         event_errors = np.zeros(event_count, dtype=np.float32)
-        counts = np.zeros(event_count, dtype=np.float32)
+        event_counts = np.zeros(event_count, dtype=np.float32)
 
         for idx, error in enumerate(sequence_errors):
             start = idx
             end = min(idx + sequence_length, event_count)
             if start >= event_count:
                 break
-            event_errors[start:end] += float(error)
-            counts[start:end] += 1.0
 
-        counts[counts == 0] = 1.0
-        return event_errors / counts
+            event_errors[start:end] += float(error)
+            event_counts[start:end] += 1.0
+
+        event_counts[event_counts == 0] = 1.0
+        return event_errors / event_counts
 
     def _resolve_model_path(self, model_dir: Path) -> Path:
         candidates = [
@@ -155,4 +157,3 @@ class InferencePipeline:
             if candidate.exists():
                 return candidate
         return candidates[0]
-
