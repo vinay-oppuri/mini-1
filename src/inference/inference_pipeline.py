@@ -1,159 +1,124 @@
-from __future__ import annotations
-
-from dataclasses import dataclass
-from pathlib import Path
-from typing import List, Optional, Sequence
-
 import joblib
 import numpy as np
 from tensorflow.keras.models import load_model
+from pathlib import Path
 
 
-@dataclass(frozen=True)
 class InferenceResult:
-    anomaly_score: float
-    is_anomaly: bool
-    threshold: float
-    raw_max_error: float
-    event_scores: List[float]
-    sequence_scores: List[float]
-    window_size: int
-    padding_applied: bool
+    def __init__(
+        self,
+        anomaly_score,
+        is_anomaly,
+        threshold,
+        raw_max_error,
+        event_scores,
+        window_size,
+        padding_applied,
+    ):
+        self.anomaly_score = float(anomaly_score)
+        self.is_anomaly = bool(is_anomaly)
+        self.threshold = float(threshold)
+        self.raw_max_error = float(raw_max_error)
+        self.event_scores = event_scores
+        self.window_size = int(window_size)
+        self.padding_applied = bool(padding_applied)
 
 
 class InferencePipeline:
-    """
-    Inference-only anomaly pipeline:
-    logs/templates -> vectorizer -> svd -> scaler -> sequences -> lstm -> score
-    """
 
-    def __init__(self, model_dir: Optional[str] = None) -> None:
-        project_root = Path(__file__).resolve().parents[2]
-        default_model_dir = project_root / "models"
-        artifact_dir = Path(model_dir) if model_dir else default_model_dir
+    def __init__(self):
+        model_dir = Path("models")
 
-        self.vectorizer = joblib.load(artifact_dir / "vectorizer.pkl")
-        self.svd = joblib.load(artifact_dir / "svd.pkl")
-        self.scaler = joblib.load(artifact_dir / "scaler.pkl")
-        self.model = load_model(self._resolve_model_path(artifact_dir))
-        self.threshold = float(np.load(self._resolve_threshold_path(artifact_dir)))
+        # load saved preprocessing tools
+        self.vectorizer = joblib.load(model_dir / "vectorizer.pkl")
+        self.svd = joblib.load(model_dir / "svd.pkl")
+        self.scaler = joblib.load(model_dir / "scaler.pkl")
+
+        # load trained LSTM model
+        model_path = self._find_first_existing(model_dir, [
+            "lstm.keras",
+            "lstm_model.h5",
+            "lstm_autoencoder.keras",
+        ])
+        self.model = load_model(model_path)
+
+        # anomaly threshold
+        threshold_path = self._find_first_existing(model_dir, [
+            "threshold.npy",
+            "anomaly_threshold.npy",
+        ])
+        self.threshold = float(np.load(threshold_path))
+
+        # sequence length expected by LSTM
         self.window_size = int(self.model.input_shape[1])
 
-    def score(self, logs: Sequence[str]) -> InferenceResult:
-        clean_logs = [str(line).strip() for line in logs if str(line).strip()]
-        if not clean_logs:
-            return self._empty_result()
 
-        features = self._preprocess(clean_logs)
-        sequences, padding_applied, original_count = self._build_sequences(features)
+    def score(self, logs):
 
-        reconstructed = self.model.predict(sequences, verbose=0)
-        sequence_errors = np.mean(np.square(sequences - reconstructed), axis=(1, 2))
-        event_errors = self._map_sequence_errors_to_events(
-            sequence_errors=sequence_errors,
-            event_count=original_count,
-            sequence_length=self.window_size,
-        )
+        if len(logs) == 0:
+            return InferenceResult(
+                anomaly_score=0.0,
+                is_anomaly=False,
+                threshold=self.threshold,
+                raw_max_error=0.0,
+                event_scores=[],
+                window_size=self.window_size,
+                padding_applied=False,
+            )
 
-        raw_max_error = float(np.max(event_errors) if len(event_errors) else 0.0)
-        threshold_floor = max(self.threshold, 1e-8)
-        normalized_event_scores = np.clip(event_errors / threshold_floor, 0.0, 1.0)
-        normalized_sequence_scores = np.clip(sequence_errors / threshold_floor, 0.0, 1.0)
-        anomaly_score = float(np.max(normalized_event_scores) if len(normalized_event_scores) else 0.0)
-        is_anomaly = raw_max_error > self.threshold
+        # convert logs to numerical vectors
+        vectors = self.vectorizer.transform(logs)
+
+        # dimensionality reduction
+        reduced = self.svd.transform(vectors)
+
+        # normalize features
+        scaled = self.scaler.transform(reduced)
+
+        features = np.array(scaled, dtype=np.float32)
+
+        # build sequence for LSTM
+        sequence, padding_applied = self._build_sequence(features)
+        sequence = np.expand_dims(sequence, axis=0)
+
+        # reconstruction by autoencoder
+        reconstructed = self.model.predict(sequence, verbose=0)
+
+        # reconstruction error
+        error = float(np.mean((sequence - reconstructed) ** 2))
+
+        # anomaly score
+        safe_threshold = self.threshold if self.threshold > 0 else 1e-8
+        anomaly_score = min(error / safe_threshold, 1.0)
+
+        is_anomaly = error > self.threshold
+        event_scores = [float(anomaly_score)] * len(logs)
 
         return InferenceResult(
             anomaly_score=anomaly_score,
             is_anomaly=is_anomaly,
             threshold=self.threshold,
-            raw_max_error=raw_max_error,
-            event_scores=normalized_event_scores.tolist(),
-            sequence_scores=normalized_sequence_scores.tolist(),
+            raw_max_error=error,
+            event_scores=event_scores,
             window_size=self.window_size,
             padding_applied=padding_applied,
         )
 
-    def _empty_result(self) -> InferenceResult:
-        return InferenceResult(
-            anomaly_score=0.0,
-            is_anomaly=False,
-            threshold=self.threshold,
-            raw_max_error=0.0,
-            event_scores=[],
-            sequence_scores=[],
-            window_size=self.window_size,
-            padding_applied=False,
-        )
+    def _build_sequence(self, features):
+        total = len(features)
 
-    def _preprocess(self, logs: Sequence[str]) -> np.ndarray:
-        vectors = self.vectorizer.transform(logs)
-        reduced = self.svd.transform(vectors)
-        scaled = self.scaler.transform(reduced)
-        return np.asarray(scaled, dtype=np.float32)
+        if total >= self.window_size:
+            return features[:self.window_size], False
 
-    def _build_sequences(self, features: np.ndarray) -> tuple[np.ndarray, bool, int]:
-        original_count = len(features)
-        if original_count == 0:
-            return np.empty((0, self.window_size, 0), dtype=np.float32), False, 0
+        # if fewer events than window size, pad with last event
+        missing = self.window_size - total
+        padding = np.repeat(features[-1:], missing, axis=0)
+        sequence = np.vstack([features, padding])
+        return sequence, True
 
-        if original_count < self.window_size:
-            missing = self.window_size - original_count
-            padding = np.repeat(features[-1:, :], missing, axis=0)
-            padded = np.vstack([features, padding])
-            sequence = padded[np.newaxis, :, :]
-            return np.asarray(sequence, dtype=np.float32), True, original_count
-
-        sliding_windows = [
-            features[start : start + self.window_size]
-            for start in range(original_count - self.window_size + 1)
-        ]
-        sequences = np.asarray(sliding_windows, dtype=np.float32)
-        return sequences, False, original_count
-
-    def _map_sequence_errors_to_events(
-        self,
-        sequence_errors: np.ndarray,
-        event_count: int,
-        sequence_length: int,
-    ) -> np.ndarray:
-        if event_count == 0:
-            return np.array([], dtype=np.float32)
-
-        if len(sequence_errors) == 1 and event_count < sequence_length:
-            return np.full(event_count, float(sequence_errors[0]), dtype=np.float32)
-
-        event_errors = np.zeros(event_count, dtype=np.float32)
-        event_counts = np.zeros(event_count, dtype=np.float32)
-
-        for idx, error in enumerate(sequence_errors):
-            start = idx
-            end = min(idx + sequence_length, event_count)
-            if start >= event_count:
-                break
-
-            event_errors[start:end] += float(error)
-            event_counts[start:end] += 1.0
-
-        event_counts[event_counts == 0] = 1.0
-        return event_errors / event_counts
-
-    def _resolve_model_path(self, model_dir: Path) -> Path:
-        candidates = [
-            model_dir / "lstm.keras",
-            model_dir / "lstm_model.h5",
-            model_dir / "lstm_autoencoder.keras",
-        ]
-        for candidate in candidates:
-            if candidate.exists():
-                return candidate
-        return candidates[-1]
-
-    def _resolve_threshold_path(self, model_dir: Path) -> Path:
-        candidates = [
-            model_dir / "threshold.npy",
-            model_dir / "anomaly_threshold.npy",
-        ]
-        for candidate in candidates:
-            if candidate.exists():
-                return candidate
-        return candidates[0]
+    def _find_first_existing(self, folder, names):
+        for name in names:
+            path = folder / name
+            if path.exists():
+                return path
+        raise FileNotFoundError(f"Missing model artifact in {folder}: {names}")
