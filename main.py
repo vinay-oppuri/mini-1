@@ -1,100 +1,105 @@
-import json
-from agents.coordinator import Coordinator
+from __future__ import annotations
 
-# sample logs if file fails
+import argparse
+import json
+from pathlib import Path
+from typing import Any
+
+from agents.coordinator import CoordinatorAgent
+
+
+DEFAULT_LOG_FILE = Path("data/raw_logs/app/cloud_workload_logs.json")
+DEFAULT_OUTPUT_FILE = Path("data/parsed_logs/last_run_output.json")
+
 MOCK_LOGS = [
     "ERROR auth-service: Login failed for user admin from IP 203.0.113.10",
     "ERROR auth-service: Login failed for user admin from IP 203.0.113.10",
     "ERROR auth-service: Login failed for user admin from IP 203.0.113.10",
-    "WARN api-gateway: Too many requests from IP 203.0.113.10 status 429",
-    "WARN api-gateway: Too many requests from IP 203.0.113.10 status 503",
+    "WARN api-gateway: Too many requests from IP 203.0.113.10 status=503",
+    "ERROR ml-trainer: Suspicious outbound transfer 1.4GB from pod to 203.0.113.44",
 ]
 
 
-# function to load logs from json file
-def load_logs(file_path):
-
+def load_logs(path: Path) -> tuple[list[Any], str, str]:
     try:
-        file = open(file_path, "r")
-        logs = json.load(file)
-        file.close()
+        if path.suffix.lower() == ".json":
+            with path.open("r", encoding="utf-8") as file:
+                data = json.load(file)
+            if not isinstance(data, list):
+                raise ValueError("JSON log file must be an array of entries")
+            return data, "REAL DATA", ""
 
-        return logs, "REAL DATA", ""
-
-    except Exception as error:
-        reason = f"Could not load real logs file: {error}"
-        print(reason)
-        print("Using mock logs instead.")
+        with path.open("r", encoding="utf-8") as file:
+            lines = [line.strip() for line in file if line.strip()]
+        if not lines:
+            raise ValueError("Text log file is empty")
+        return lines, "REAL DATA", ""
+    except Exception as error:  # pragma: no cover - fallback path
+        reason = f"Could not load logs from {path}: {error}"
         return MOCK_LOGS, "MOCK DATA", reason
 
 
-# function to print results nicely
-def print_report(result, data_source, fallback_reason):
-
+def print_report(result: dict[str, Any], data_source: str, fallback_reason: str) -> None:
     analysis = result["analysis"]
     llm = result["llm_explanation"]
     policy = result["policy"]
     response = result["response"]
     metrics = result["cloud_metrics"]
 
-    # show where output came from
-    print("\nDATA SOURCE:", data_source)
-    if data_source == "MOCK DATA" and fallback_reason != "":
-        print("Reason:", fallback_reason)
+    print(f"\nData Source: {data_source}")
+    if fallback_reason:
+        print(f"Fallback Reason: {fallback_reason}")
 
-    # anomaly or not
-    if analysis["is_anomaly"]:
-        print("\nANOMALY DETECTED\n")
+    print("\nAnomaly Status:")
+    print("ANOMALY DETECTED!" if analysis["is_anomaly"] else "No critical anomaly")
+    print(f"Anomaly Score: {analysis['anomaly_score']:.4f}")
+    print(f"Model Mode: {analysis.get('model_mode', 'unknown')}")
+
+    print("\nTop Service:")
+    print(metrics["top_service"])
+
+    print("\nLLM Explanation:")
+    print(f"Type: {llm['attack_type']}")
+    print(f"Reason: {llm['reason']}")
+
+    print("\nPolicy Decision:")
+    print(f"Severity: {policy['severity']}")
+    print(f"Need Human Approval: {policy['requires_human_approval']}")
+
+    print("\nResponse Actions:")
+    if response["actions"]:
+        for action in response["actions"]:
+            print(f"- {action}")
     else:
-        print("\nNO CRITICAL ANOMALY\n")
-
-    print("Service:", metrics["service"])
-    print("Score:", analysis["anomaly_score"])
-
-    print("\nGemini Analysis")
-    print("Attack Type:", llm["attack_type"])
-    print("Reason:", llm["reason"])
-
-    print("\nAction")
-
-    actions = response["actions"]
-
-    if len(actions) == 0:
-        print("- No action needed")
-    else:
-        for action in actions:
-            print("-", action)
-
-    print("\nSeverity:", policy["severity"])
+        print("- No action required")
 
 
-# main program
-def main():
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="AI-Driven Multi-Agent Log Anomaly Detection for Cloud Workloads"
+    )
+    parser.add_argument("--logs", type=Path, default=DEFAULT_LOG_FILE, help="Path to input logs")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_OUTPUT_FILE,
+        help="Where to save coordinator output JSON",
+    )
+    return parser.parse_args()
 
-    # create coordinator (multi-agent system)   
-    coordinator = Coordinator()
 
-    # load logs
-    logs, data_source, fallback_reason = load_logs("data/raw_logs/app/cloud_workload_logs.json")
+def main() -> None:
+    args = parse_args()
+    coordinator = CoordinatorAgent()
+    logs, data_source, fallback_reason = load_logs(args.logs)
+    result = coordinator.run(logs=logs, source=args.logs.stem)
 
-    # run detection (if real-data processing fails, retry with mock data)
-    try:
-        result = coordinator.run(logs=logs, source="cloud-workload")
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    with args.output.open("w", encoding="utf-8") as file:
+        json.dump(result, file, indent=2)
 
-    except Exception as error:
-        if data_source == "MOCK DATA":
-            raise
-
-        fallback_reason = f"Could not process real data output: {error}"
-        print(fallback_reason)
-        print("Retrying with mock logs...")
-
-        logs = MOCK_LOGS
-        data_source = "MOCK DATA"
-        result = coordinator.run(logs=logs, source="mock-fallback")
-
-    # show result
     print_report(result, data_source, fallback_reason)
+    print(f"\nSaved detailed result to: {args.output}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,21 @@
+{
+  "vocab_size": 29,
+  "threshold": 0.9049616456031799,
+  "model_config": {
+    "d_model": 128,
+    "nhead": 8,
+    "num_layers": 4,
+    "max_seq_len": 100,
+    "dropout": 0.1
+  },
+  "test_metrics": {
+    "f1": 0.998813056379822,
+    "auc": 0.9999941599430129,
+    "threshold": 0.9049616456031799,
+    "tp": 1683,
+    "fp": 3,
+    "fn": 1
+  },
+  "dataset": "HDFS (LogHub) \u2014 203-node cloud cluster logs",
+  "model": "Transformer Encoder binary classifier"
+}

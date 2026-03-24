@@ -1,0 +1,78 @@
+081109 203518 148 INFO dfs.DataNode$PacketResponder: PacketResponder 0 for block blk_38865049064139660 terminating
+081109 203518 148 INFO dfs.DataNode$PacketResponder: Received block blk_38865049064139660 of size 67108864 from /10.251.73.220
+081109 203518 148 INFO dfs.DataNode$DataXceiver: Receiving block blk_38865049064139660 src: /10.251.73.220:50010 dest: /10.251.73.220:50010
+081109 203518 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.107.227:50010 is added to blk_38865049064139660 size 67108864
+081109 203519 148 INFO dfs.DataNode$PacketResponder: PacketResponder 0 for block blk_38865049064139660 terminating
+081109 203519 148 INFO dfs.DataNode$PacketResponder: Received block blk_38865049064139660 of size 67108864 from /10.251.43.115
+081109 203520 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.43.115:50010 is added to blk_38865049064139660 size 67108864
+081109 203521 148 INFO dfs.DataNode$DataXceiver: Receiving block blk_38865049064139660 src: /10.251.73.220:50010 dest: /10.251.73.220:50010
+081109 203522 148 INFO dfs.DataNode$PacketResponder: PacketResponder 1 for block blk_38865049064139660 terminating
+081109 203522 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.65.9:50010 is added to blk_38865049064139660 size 67108864
+081109 203601 148 INFO dfs.DataNode$PacketResponder: PacketResponder 0 for block blk_-1608999687919862906 terminating
+081109 203601 148 INFO dfs.DataNode$PacketResponder: Received block blk_-1608999687919862906 of size 67108864 from /10.251.73.220
+081109 203601 148 INFO dfs.DataNode$DataXceiver: Receiving block blk_-1608999687919862906 src: /10.251.73.220:50010 dest: /10.251.73.220:50010
+081109 203602 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.107.227:50010 is added to blk_-1608999687919862906 size 67108864
+081109 203603 148 INFO dfs.DataNode$PacketResponder: PacketResponder 1 for block blk_-1608999687919862906 terminating
+081109 203603 148 INFO dfs.DataNode$PacketResponder: Received block blk_-1608999687919862906 of size 67108864 from /10.251.43.115
+081109 203604 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.43.115:50010 is added to blk_-1608999687919862906 size 67108864
+081109 203700 148 INFO dfs.DataNode$DataXceiver: Receiving block blk_7503483334202473044 src: /10.251.111.252:50010 dest: /10.251.111.252:50010
+081109 203700 148 INFO dfs.DataNode$PacketResponder: PacketResponder 0 for block blk_7503483334202473044 terminating
+081109 203701 148 INFO dfs.DataNode$PacketResponder: PacketResponder 1 for block blk_7503483334202473044 Interrupted.
+081109 203701 148 INFO dfs.DataNode$PacketResponder: PacketResponder 2 for block blk_7503483334202473044 Interrupted.
+081109 203701 148 ERROR dfs.DataNode$DataXceiver: writeBlock blk_7503483334202473044 received exception java.io.IOException: Connection reset by peer
+081109 203701 148 INFO dfs.DataNode: Exception in receiveBlock for block blk_7503483334202473044
+081109 203702 148 ERROR dfs.DataNode$DataXceiver: writeBlock blk_7503483334202473044 received exception java.io.IOException: Broken pipe
+081109 203702 148 INFO dfs.DataNode: Exception in receiveBlock for block blk_7503483334202473044
+081109 203703 148 ERROR dfs.DataNode$DataXceiver: writeBlock blk_7503483334202473044 received exception java.io.IOException: Connection reset by peer
+081109 203703 148 INFO dfs.DataNode: Exception in receiveBlock for block blk_7503483334202473044
+081109 203704 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.111.252:50010 is added to blk_7503483334202473044 size 0
+081109 203800 148 INFO dfs.DataNode$DataXceiver: Receiving block blk_-3544583377289625738 src: /10.251.65.9:50010 dest: /10.251.65.9:50010
+081109 203800 148 INFO dfs.DataNode$PacketResponder: PacketResponder 0 for block blk_-3544583377289625738 terminating
+081109 203801 148 INFO dfs.DataNode$PacketResponder: Received block blk_-3544583377289625738 of size 67108864 from /10.251.65.9
+081109 203801 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.65.9:50010 is added to blk_-3544583377289625738 size 67108864
+081109 203802 148 INFO dfs.DataNode$PacketResponder: PacketResponder 1 for block blk_-3544583377289625738 terminating
+081109 203802 148 INFO dfs.DataNode$PacketResponder: Received block blk_-3544583377289625738 of size 67108864 from /10.251.43.115
+081109 203803 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.43.115:50010 is added to blk_-3544583377289625738 size 67108864
+081109 203900 148 INFO dfs.DataNode$DataXceiver: Receiving block blk_-9016357625601323660 src: /10.251.107.227:50010 dest: /10.251.107.227:50010
+081109 203901 148 INFO dfs.DataNode$PacketResponder: PacketResponder 0 for block blk_-9016357625601323660 terminating
+081109 203901 148 INFO dfs.DataNode$PacketResponder: PacketResponder 1 for block blk_-9016357625601323660 Interrupted.
+081109 203902 148 ERROR dfs.DataNode$DataXceiver: writeBlock blk_-9016357625601323660 received exception java.io.IOException: Disk quota exceeded
+081109 203902 148 INFO dfs.DataNode: Exception in receiveBlock for block blk_-9016357625601323660
+081109 203903 148 ERROR dfs.DataNode$DataXceiver: writeBlock blk_-9016357625601323660 received exception java.io.IOException: No space left on device
+081109 203903 148 INFO dfs.DataNode: Exception in receiveBlock for block blk_-9016357625601323660
+081109 203904 148 ERROR dfs.DataNode$DataXceiver: writeBlock blk_-9016357625601323660 received exception java.io.IOException: No space left on device
+081109 203904 148 INFO dfs.DataNode: Exception in receiveBlock for block blk_-9016357625601323660
+081109 204000 148 INFO dfs.DataNode$DataXceiver: Receiving block blk_1611999803600152475 src: /10.251.73.220:50010 dest: /10.251.73.220:50010
+081109 204000 148 INFO dfs.DataNode$PacketResponder: PacketResponder 0 for block blk_1611999803600152475 terminating
+081109 204001 148 INFO dfs.DataNode$PacketResponder: Received block blk_1611999803600152475 of size 67108864 from /10.251.73.220
+081109 204001 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.73.220:50010 is added to blk_1611999803600152475 size 67108864
+081109 204002 148 INFO dfs.DataNode$PacketResponder: PacketResponder 1 for block blk_1611999803600152475 terminating
+081109 204002 148 INFO dfs.DataNode$PacketResponder: Received block blk_1611999803600152475 of size 67108864 from /10.251.43.115
+081109 204003 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.43.115:50010 is added to blk_1611999803600152475 size 67108864
+081109 204100 148 INFO dfs.DataNode$DataXceiver: Receiving block blk_-5233188713174965685 src: /10.251.43.115:50010 dest: /10.251.43.115:50010
+081109 204100 148 INFO dfs.DataNode$PacketResponder: PacketResponder 0 for block blk_-5233188713174965685 terminating
+081109 204101 148 INFO dfs.DataNode$PacketResponder: PacketResponder 1 for block blk_-5233188713174965685 Interrupted.
+081109 204101 148 INFO dfs.DataNode$PacketResponder: PacketResponder 2 for block blk_-5233188713174965685 Interrupted.
+081109 204102 148 ERROR dfs.DataNode$DataXceiver: writeBlock blk_-5233188713174965685 received exception java.io.IOException: Connection reset by peer
+081109 204102 148 INFO dfs.DataNode: Exception in receiveBlock for block blk_-5233188713174965685
+081109 204103 148 ERROR dfs.DataNode$DataXceiver: writeBlock blk_-5233188713174965685 received exception java.io.IOException: Connection reset by peer
+081109 204103 148 INFO dfs.DataNode: Exception in receiveBlock for block blk_-5233188713174965685
+081109 204104 148 ERROR dfs.DataNode$DataXceiver: writeBlock blk_-5233188713174965685 received exception java.io.IOException: Connection reset by peer
+081109 204104 148 INFO dfs.DataNode: Exception in receiveBlock for block blk_-5233188713174965685
+081109 204200 148 INFO dfs.DataNode$DataXceiver: Receiving block blk_2452290309215271610 src: /10.251.65.9:50010 dest: /10.251.65.9:50010
+081109 204200 148 INFO dfs.DataNode$PacketResponder: PacketResponder 0 for block blk_2452290309215271610 terminating
+081109 204201 148 INFO dfs.DataNode$PacketResponder: Received block blk_2452290309215271610 of size 67108864 from /10.251.65.9
+081109 204201 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.65.9:50010 is added to blk_2452290309215271610 size 67108864
+081109 204202 148 INFO dfs.DataNode$PacketResponder: PacketResponder 1 for block blk_2452290309215271610 terminating
+081109 204202 148 INFO dfs.DataNode$PacketResponder: Received block blk_2452290309215271610 of size 67108864 from /10.251.107.227
+081109 204203 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.107.227:50010 is added to blk_2452290309215271610 size 67108864
+081109 204300 148 INFO dfs.DataNode$DataXceiver: Receiving block blk_-6240512924104444415 src: /10.251.111.252:50010 dest: /10.251.111.252:50010
+081109 204300 148 INFO dfs.DataNode$PacketResponder: PacketResponder 0 for block blk_-6240512924104444415 terminating
+081109 204301 148 INFO dfs.DataNode$PacketResponder: PacketResponder 1 for block blk_-6240512924104444415 Interrupted.
+081109 204302 148 ERROR dfs.DataNode$DataXceiver: writeBlock blk_-6240512924104444415 received exception java.io.IOException: Broken pipe
+081109 204302 148 INFO dfs.DataNode: Exception in receiveBlock for block blk_-6240512924104444415
+081109 204303 148 ERROR dfs.DataNode$DataXceiver: writeBlock blk_-6240512924104444415 received exception java.io.IOException: Broken pipe
+081109 204303 148 INFO dfs.DataNode: Exception in receiveBlock for block blk_-6240512924104444415
+081109 204304 148 ERROR dfs.DataNode$DataXceiver: writeBlock blk_-6240512924104444415 received exception java.io.IOException: Broken pipe
+081109 204304 148 INFO dfs.DataNode: Exception in receiveBlock for block blk_-6240512924104444415
+081109 204305 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.addStoredBlock: blockMap updated: 10.251.111.252:50010 is added to blk_-6240512924104444415 size 0
