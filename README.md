@@ -1,42 +1,55 @@
-## AI-Driven Multi-Agent Log Anomaly Detection for Cloud Workloads
+# Cloud Sentinel Monorepo
 
-This project implements the full workflow:
+This repository is split into two deployable apps:
 
-1. `LogMonitoringAgent` reads raw cloud logs.
-2. `DrainParser` converts logs to templates (`Error block <*> failed`) and event IDs (`E1`, `E2`, ...).
-3. `SequenceBuilder` converts event IDs into model-ready event sequences.
-4. `TransformerAnomalyDetector` returns anomaly score (0.0 to 1.0).
-5. `PolicyAgent` applies response rules.
-6. `ResponseAgent` simulates actions.
-7. `CoordinatorAgent` orchestrates all agents, including human-in-the-loop for high-risk cases.
+- `backend/`: Python anomaly detection service (model, parser, agents, API, CLI, tests)
+- `frontend/`: Next.js dashboard UI
 
-### Project Structure
+## Folder Structure
 
 ```text
-project/
-├── agents/
-├── data/
-│   ├── raw_logs/
-│   └── parsed_logs/
-├── model/
-├── parser/
-├── utils/
-└── main.py
+backend/
+  backend/         # Python backend package (API/CLI/service)
+  agents/          # multi-agent orchestration
+  model/           # transformer model + metadata
+  parser/          # log parsing components
+  utils/           # sequence and dataset utilities
+  data/            # benchmark + raw sample logs
+  tests/           # backend tests
+frontend/
+  app/             # Next.js app router
+  components/      # UI components
+  lib/             # server helpers/API client
+  types/           # shared frontend types
 ```
 
-### Run
+## Quick Start
+
+1. Run backend:
 
 ```bash
-python main.py
+cd backend
+uv sync
+uv run python -m backend.api_server
 ```
 
-Or with a custom log file:
+2. Run frontend (new terminal):
 
 ```bash
-python main.py --logs data/raw_logs/app/cloud_workload_logs.json
+cd frontend
+npm install
+npm run dev
 ```
 
-Detailed run output is saved to `data/parsed_logs/last_run_output.json`.
+3. Set frontend backend URL in `frontend/.env.local`:
 
-If `torch` is not available in your current Python interpreter, the system will still run with a heuristic fallback detector.  
-For full transformer inference with the provided checkpoint, run with your project venv Python (for example on Windows: `.venv\Scripts\python.exe main.py`).
+```bash
+BACKEND_API_BASE_URL=http://127.0.0.1:8000
+```
+
+## Deployment
+
+- Deploy `backend/` as one service.
+- Deploy `frontend/` as one service.
+
+This separation keeps release and scaling independent for each tier.

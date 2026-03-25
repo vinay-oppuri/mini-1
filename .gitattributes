@@ -1,0 +1,17 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Ensure specific types of files always use LF (Linux/Mac) line endings.
+*.py text eol=lf
+*.sh text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+*.md text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+
+# Explicitly declare Windows batch files to use CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
