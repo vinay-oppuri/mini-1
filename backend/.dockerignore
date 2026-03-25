@@ -1,0 +1,10 @@
+.git
+.venv
+.pytest_cache
+__pycache__
+*.pyc
+uv.lock
+docs
+data/raw_logs/hdfs/anomaly_label.csv
+data/raw_logs/hdfs/hdfs_cache.json
+

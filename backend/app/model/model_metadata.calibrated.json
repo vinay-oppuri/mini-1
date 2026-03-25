@@ -1,0 +1,50 @@
+{
+  "vocab_size": 29,
+  "threshold": 0.9997977614402771,
+  "model_config": {
+    "d_model": 128,
+    "nhead": 8,
+    "num_layers": 4,
+    "max_seq_len": 100,
+    "dropout": 0.1
+  },
+  "test_metrics": {
+    "f1": 0.998813056379822,
+    "auc": 0.9999941599430129,
+    "threshold": 0.9049616456031799,
+    "tp": 1683,
+    "fp": 3,
+    "fn": 1
+  },
+  "dataset": "HDFS (LogHub) \u2014 203-node cloud cluster logs",
+  "model": "Transformer Encoder binary classifier",
+  "calibration": {
+    "timestamp_utc": "2026-03-25T15:39:32.630742+00:00",
+    "old_threshold": 0.9049616456031799,
+    "new_threshold": 0.9997977614402771,
+    "metrics": {
+      "tp": 1,
+      "tn": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "accuracy": 1.0
+    },
+    "normal_files": [
+      {
+        "path": "data/raw_logs/app/cloud_workload_large_normal.json",
+        "score": 0.00016675562073942274,
+        "supported": true
+      }
+    ],
+    "anomaly_files": [
+      {
+        "path": "data/raw_logs/app/cloud_workload_large_anomaly.json",
+        "score": 0.9997977614402771,
+        "supported": true
+      }
+    ]
+  }
+}

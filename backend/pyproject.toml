@@ -1,0 +1,37 @@
+[project]
+name = "ai-multi-agent-log-anomaly-detection"
+version = "0.1.0"
+description = "AI-driven multi-agent log anomaly detection for cloud workloads"
+requires-python = ">=3.10,<3.15"
+
+dependencies = [
+    "drain3>=0.9.11",
+    "fastapi>=0.115.0",
+    "google-genai>=1.0.0",
+    "numpy>=2.2.6",
+    "python-multipart>=0.0.9",
+    "python-dotenv",
+    "torch>=2.11.0",
+    "uvicorn>=0.32.0",
+]
+
+[project.scripts]
+anomaly-detector = "app.cli.app:main"
+anomaly-api = "app.api.server:run"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "black",
+    "mypy",
+    "pytest",
+    "ruff",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "app",
+]

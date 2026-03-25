@@ -1,0 +1,23 @@
+[
+  {
+    "name": "hdfs_normal_small",
+    "path": "data/raw_logs/no_anomaly_hdfs.log",
+    "expected": "normal"
+  },
+  {
+    "name": "hdfs_anomaly_small",
+    "path": "data/raw_logs/sample_logs.log",
+    "expected": "anomaly"
+  },
+  {
+    "name": "cloud_large_normal",
+    "path": "data/raw_logs/app/cloud_workload_large_normal.json",
+    "expected": "normal"
+  },
+  {
+    "name": "cloud_large_anomaly",
+    "path": "data/raw_logs/app/cloud_workload_large_anomaly.json",
+    "expected": "anomaly"
+  }
+]
+
